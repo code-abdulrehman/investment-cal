@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ur" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SIP کیلکولیٹر — ماہانہ سرمایہ کاری</title>
+  <title>SIP Calculator</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -23,89 +23,85 @@
   <!-- D3 -->
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 
-  <!-- Optional Urdu font (Noto Naskh Arabic) -->
+  <!-- Optional Urdu font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    body { font-family: 'Noto Naskh Arabic', system-ui, sans-serif; }
+    body { font-family: system-ui, sans-serif; }
+    [lang="ur"] body { font-family: 'Noto Naskh Arabic', system-ui, sans-serif; }
     .number-input::-webkit-outer-spin-button,
     .number-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
   <header class="max-w-6xl mx-auto p-4 sm:p-6">
-    <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900">SIP کیلکولیٹر (ماہانہ سرمایہ کاری)</h1>
-    <p class="text-slate-600 mt-1">
-      ہر مہینے ایک جیسی رقم لگائیں، ماہانہ منافع منتخب کریں، اور گراف و ٹیبل میں نتیجے دیکھیں۔
-    </p>
+    <div class="flex justify-end mb-3">
+      <select id="langSelect" class="border border-slate-300 rounded-lg px-2 py-1 text-sm">
+        <option value="en">English</option>
+        <option value="ur">اردو</option>
+      </select>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900"></h1>
+    <p class="text-slate-600 mt-1"></p>
   </header>
 
   <main class="max-w-6xl mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Controls -->
     <section class="lg:col-span-1 bg-white rounded-xl shadow-sm ring-1 ring-slate-200 p-4 sm:p-6 space-y-4">
-      <h2 class="text-lg font-semibold">سیٹنگز</h2>
+      <h2 class="text-lg font-semibold"></h2>
 
-      <label class="block">
-        <span class="text-sm text-slate-600">ماہانہ سرمایہ (₨)</span>
+      <label class="block" for="amount">
+        <span class="text-sm text-slate-600" data-i18n="amount"></span>
         <input id="amount" type="number" class="number-input mt-1 w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary" value="2000" min="0" step="100">
       </label>
 
       <div class="grid grid-cols-2 gap-3">
-        <label class="block">
-          <span class="text-sm text-slate-600">ماہانہ منافع %</span>
+        <label class="block" for="rateMonthlyPct">
+          <span class="text-sm text-slate-600" data-i18n="monthlyRate"></span>
           <input id="rateMonthlyPct" type="number" class="number-input mt-1 w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary" value="1.667" step="0.01" min="-100" max="100">
         </label>
-        <label class="block">
-          <span class="text-sm text-slate-600">مدت (مہینے)</span>
+        <label class="block" for="months">
+          <span class="text-sm text-slate-600" data-i18n="months"></span>
           <input id="months" type="number" class="number-input mt-1 w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary" value="36" min="1" step="1">
         </label>
       </div>
 
       <fieldset class="space-y-2">
-        <legend class="text-sm text-slate-600">رقم کب جمع ہوتی ہے؟</legend>
+        <legend class="text-sm text-slate-600" data-i18n="depositTiming"></legend>
         <label class="flex items-center gap-2">
           <input type="radio" name="timing" value="begin" id="payBegin" checked>
-          <span>مہینے کے شروع میں (Annuity Due) — <span class="text-slate-500">آپ کی مثال</span></span>
+          <span data-i18n="payBegin"></span>
         </label>
         <label class="flex items-center gap-2">
           <input type="radio" name="timing" value="end" id="payEnd">
-          <span>مہینے کے آخر میں (Ordinary)</span>
+          <span data-i18n="payEnd"></span>
         </label>
       </fieldset>
 
       <div class="grid grid-cols-2 gap-3">
-        <label class="block">
-          <span class="text-sm text-slate-600">سالانہ منافع % (اختیاری)</span>
+        <label class="block" for="rateYearlyPct">
+          <span class="text-sm text-slate-600" data-i18n="yearlyRate"></span>
           <input id="rateYearlyPct" type="number" class="number-input mt-1 w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary" placeholder="20" step="0.01">
-          <span class="text-xs text-slate-500">ڈالیں تو ماہانہ خود نکالے گا</span>
+          <span class="text-xs text-slate-500" data-i18n="yearlyHint"></span>
         </label>
-        <label class="block">
-          <span class="text-sm text-slate-600">مہینے/سال کنورٹر</span>
+        <label class="block" for="durationPreset">
+          <span class="text-sm text-slate-600" data-i18n="converter"></span>
           <select id="durationPreset" class="mt-1 w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary">
-            <option value="">— منتخب کریں —</option>
-            <option value="12">1 سال (12 مہینے)</option>
-            <option value="24">2 سال (24 مہینے)</option>
-            <option value="36">3 سال (36 مہینے)</option>
-            <option value="60">5 سال (60 مہینے)</option>
+            <option value="">—</option>
+            <option value="12">1 year (12 months)</option>
+            <option value="24">2 years (24 months)</option>
+            <option value="36">3 years (36 months)</option>
+            <option value="60">5 years (60 months)</option>
           </select>
         </label>
       </div>
 
       <div class="flex flex-wrap items-center gap-2 pt-2">
-        <button id="calcBtn" class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-sky-600">حساب کریں</button>
-        <button id="resetBtn" class="px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50">ری سیٹ</button>
-        <button id="csvBtn" class="px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50">CSV ڈاؤن لوڈ</button>
+        <button id="calcBtn" class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-sky-600"></button>
+        <button id="resetBtn" class="px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50"></button>
+        <button id="csvBtn" class="px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50"></button>
       </div>
-
-      <details class="mt-2">
-        <summary class="cursor-pointer text-sm text-sky-700">فارمولے دیکھیں</summary>
-        <div class="text-sm text-slate-600 mt-2 space-y-2">
-          <p><strong>Ordinary (آخر میں جمع):</strong> FV = P * [((1+r)<sup>n</sup> − 1) / r]</p>
-          <p><strong>Annuity Due (شروع میں جمع):</strong> FV = P * [((1+r)<sup>n</sup> − 1) / r] * (1+r)</p>
-          <p>جہاں P = ماہانہ سرمایہ، r = ماہانہ شرح (اعشاریہ)، n = کل مہینے</p>
-        </div>
-      </details>
     </section>
 
     <!-- Charts + KPIs -->
@@ -113,15 +109,15 @@
       <!-- KPIs -->
       <div class="grid sm:grid-cols-3 gap-3">
         <div class="bg-white rounded-xl p-4 ring-1 ring-slate-200">
-          <div class="text-sm text-slate-500">کل آپ کی جمع رقم</div>
+          <div class="text-sm text-slate-500" data-i18n="kpiContrib"></div>
           <div id="kpiContrib" class="text-2xl font-semibold">—</div>
         </div>
         <div class="bg-white rounded-xl p-4 ring-1 ring-slate-200">
-          <div class="text-sm text-slate-500">کل ویلیو (FV)</div>
+          <div class="text-sm text-slate-500" data-i18n="kpiTotal"></div>
           <div id="kpiTotal" class="text-2xl font-semibold">—</div>
         </div>
         <div class="bg-white rounded-xl p-4 ring-1 ring-slate-200">
-          <div class="text-sm text-slate-500">کل منافع / (نقصان)</div>
+          <div class="text-sm text-slate-500" data-i18n="kpiProfit"></div>
           <div id="kpiProfit" class="text-2xl font-semibold">—</div>
         </div>
       </div>
@@ -129,32 +125,32 @@
       <!-- Chart -->
       <div class="bg-white rounded-xl ring-1 ring-slate-200 p-3 sm:p-4">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="font-semibold">گراف: ٹوٹل ویلیو بمقابلہ جمع رقم</h3>
+          <h3 class="font-semibold" data-i18n="chartTitle"></h3>
           <div class="flex gap-3 text-sm">
-            <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-contrib"></span>جمع رقم</span>
-            <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-total"></span>کل ویلیو</span>
-            <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-interest"></span>منافع</span>
+            <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-contrib"></span><span data-i18n="contrib"></span></span>
+            <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-total"></span><span data-i18n="total"></span></span>
+            <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-interest"></span><span data-i18n="profit"></span></span>
           </div>
         </div>
-        <svg id="chart" class="w-full" height="320" role="img" aria-label="SIP Chart"></svg>
+        <svg id="chart" class="w-full" height="320" role="img"></svg>
       </div>
 
       <!-- Table -->
       <div class="bg-white rounded-xl ring-1 ring-slate-200 overflow-hidden">
         <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-          <h3 class="font-semibold">شیڈول (ہر مہینہ)</h3>
-          <div class="text-sm text-slate-500">منافع/نقصان ہر مہینے کے حساب سے</div>
+          <h3 class="font-semibold" data-i18n="tableTitle"></h3>
+          <div class="text-sm text-slate-500" data-i18n="tableSubtitle"></div>
         </div>
         <div class="overflow-auto max-h-[420px]">
           <table class="min-w-full text-sm">
             <thead class="bg-slate-50 sticky top-0">
               <tr class="text-slate-600">
                 <th class="px-3 py-2 text-right">#</th>
-                <th class="px-3 py-2 text-right">جمع (₨)</th>
-                <th class="px-3 py-2 text-right">اس ماہ کا منافع (₨)</th>
-                <th class="px-3 py-2 text-right">جمع شدہ رقم (₨)</th>
-                <th class="px-3 py-2 text-right">کل ویلیو (₨)</th>
-                <th class="px-3 py-2 text-right">کُل منافع/نقصان (₨)</th>
+                <th class="px-3 py-2 text-right" data-i18n="deposit"></th>
+                <th class="px-3 py-2 text-right" data-i18n="interest"></th>
+                <th class="px-3 py-2 text-right" data-i18n="totalContrib"></th>
+                <th class="px-3 py-2 text-right" data-i18n="total"></th>
+                <th class="px-3 py-2 text-right" data-i18n="profit"></th>
               </tr>
             </thead>
             <tbody id="tbody"></tbody>
@@ -163,11 +159,111 @@
       </div>
 
       <!-- Notes -->
-      <div class="text-xs text-slate-500">
-        نوٹ: یہ کیلکولیٹر تعلیمی مقصد کے لیے ہے۔ حقیقی منافع، فیس، ٹیکس اور مارکیٹ کے اتار چڑھاؤ سے مختلف ہو سکتے ہیں۔
-      </div>
+      <div class="text-xs text-slate-500" data-i18n="note"></div>
     </section>
   </main>
+
+  <script>
+    // ------------------ Translations ------------------
+    const translations = {
+      en: {
+        title: "SIP Calculator (Monthly Investment)",
+        subtitle: "Invest a fixed amount every month, choose monthly return, and see results in graph & table.",
+        settings: "Settings",
+        amount: "Monthly Investment (₨)",
+        monthlyRate: "Monthly Return %",
+        months: "Duration (Months)",
+        depositTiming: "When is the deposit made?",
+        payBegin: "At Beginning of Month (Annuity Due) — Example",
+        payEnd: "At End of Month (Ordinary)",
+        yearlyRate: "Yearly Return % (Optional)",
+        yearlyHint: "If entered, monthly will be auto-calculated",
+        converter: "Months/Years Converter",
+        calc: "Calculate",
+        reset: "Reset",
+        csv: "Download CSV",
+        kpiContrib: "Total Invested",
+        kpiTotal: "Total Value (FV)",
+        kpiProfit: "Total Profit / (Loss)",
+        chartTitle: "Graph: Total Value vs Contribution",
+        contrib: "Contribution",
+        total: "Total Value",
+        profit: "Profit",
+        tableTitle: "Schedule (Monthly)",
+        tableSubtitle: "Profit/Loss by month",
+        deposit: "Deposit (₨)",
+        interest: "Interest This Month (₨)",
+        totalContrib: "Total Contributed (₨)",
+        note: "Note: This calculator is for educational purposes only. Actual returns may vary due to fees, taxes, and market fluctuations."
+      },
+      ur: {
+        title: "SIP کیلکولیٹر (ماہانہ سرمایہ کاری)",
+        subtitle: "ہر مہینے ایک جیسی رقم لگائیں، ماہانہ منافع منتخب کریں، اور گراف و ٹیبل میں نتیجے دیکھیں۔",
+        settings: "سیٹنگز",
+        amount: "ماہانہ سرمایہ (₨)",
+        monthlyRate: "ماہانہ منافع %",
+        months: "مدت (مہینے)",
+        depositTiming: "رقم کب جمع ہوتی ہے؟",
+        payBegin: "مہینے کے شروع میں (Annuity Due) — آپ کی مثال",
+        payEnd: "مہینے کے آخر میں (Ordinary)",
+        yearlyRate: "سالانہ منافع % (اختیاری)",
+        yearlyHint: "ڈالیں تو ماہانہ خود نکالے گا",
+        converter: "مہینے/سال کنورٹر",
+        calc: "حساب کریں",
+        reset: "ری سیٹ",
+        csv: "CSV ڈاؤن لوڈ",
+        kpiContrib: "کل آپ کی جمع رقم",
+        kpiTotal: "کل ویلیو (FV)",
+        kpiProfit: "کل منافع / (نقصان)",
+        chartTitle: "گراف: ٹوٹل ویلیو بمقابلہ جمع رقم",
+        contrib: "جمع رقم",
+        total: "کل ویلیو",
+        profit: "منافع",
+        tableTitle: "شیڈول (ہر مہینہ)",
+        tableSubtitle: "منافع/نقصان ہر مہینے کے حساب سے",
+        deposit: "جمع (₨)",
+        interest: "اس ماہ کا منافع (₨)",
+        totalContrib: "جمع شدہ رقم (₨)",
+        note: "نوٹ: یہ کیلکولیٹر تعلیمی مقصد کے لیے ہے۔ حقیقی منافع، فیس، ٹیکس اور مارکیٹ کے اتار چڑھاؤ سے مختلف ہو سکتے ہیں۔"
+      }
+    };
+
+    function applyLanguage(lang) {
+      const t = translations[lang] || translations.en;
+
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "ur" ? "rtl" : "ltr";
+      document.body.style.fontFamily = lang === "ur"
+        ? "'Noto Naskh Arabic', system-ui, sans-serif"
+        : "system-ui, sans-serif";
+
+      document.querySelector("h1").textContent = t.title;
+      document.querySelector("header p").textContent = t.subtitle;
+      document.querySelector("section h2").textContent = t.settings;
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.dataset.i18n;
+        if (t[key]) el.textContent = t[key];
+      });
+
+      document.getElementById("calcBtn").textContent = t.calc;
+      document.getElementById("resetBtn").textContent = t.reset;
+      document.getElementById("csvBtn").textContent = t.csv;
+    }
+
+    // Init language
+    const langSelect = document.getElementById("langSelect");
+    const savedLang = localStorage.getItem("sip-lang") || "en";
+    langSelect.value = savedLang;
+    applyLanguage(savedLang);
+
+    langSelect.addEventListener("change", () => {
+      const lang = langSelect.value;
+      localStorage.setItem("sip-lang", lang);
+      applyLanguage(lang);
+    });
+  </script>
+
 
   <script>
     // Helpers
